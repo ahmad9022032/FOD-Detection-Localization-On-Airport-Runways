@@ -1,33 +1,100 @@
-# Foreign Object Debris Detection and Localization on Airport Runways using Super-Resolution
+# FOD Detection and Localization on Airport Runways
 
-## Overview
-This project aims to develop an automated system for detecting and localizing Foreign Object Debris (FOD) on airport runways. The system utilizes live video streams processed through Super-Resolution models to enhance detection accuracy, focusing on smaller or partially obscured objects that could pose a threat to aircraft safety. The ultimate goal is to improve airport safety by enabling more accurate and timely detection of debris.
+Foreign Object Debris (FOD) — loose hardware, pavement fragments, tools, wildlife remains and other stray objects — is a serious hazard on airport runways and costs the aviation industry billions of dollars every year. This project builds an automated, camera-based system that **detects and localizes FOD in real time** using modern deep-learning object detectors, with super-resolution enhancement to improve the detection of small and partially obscured objects.
 
-## Project Features
-- **Real-time FOD Detection**: AI models (such as YOLOv8 or RT-DETR) are used to detect FOD in real-time from multiple video streams.
-- **Super-Resolution Enhancement**: Every nth frame from the video streams is enhanced using Super-Resolution techniques for improved detection accuracy, especially for small objects.
-- **FOD Localization**: The system identifies the exact coordinates of the detected debris on the runway.
-- **Real-time Alerts**: Airport staff is alerted immediately when debris is detected.
-- **Dashboard Visualization**: A user-friendly dashboard provides a visual interface for viewing real-time video streams, FOD alerts, and debris locations.
+## Highlights
 
-## Functional Requirements
-- **Detection Module**: Detect FOD on the runway and classify its type using AI models.
-- **Real-time Video Stream Module**: Handle simultaneous video streams from multiple cameras, sending selected frames to the Super-Resolution Module.
-- **Super Resolution Module**: Enhance the resolution of the selected frames for better small object detection.
-- **Localization Module**: Identify the exact coordinates of detected debris on the runway.
-- **Dashboard Module**: Provide real-time alerts and a visual interface for viewing runway conditions and debris locations.
+- **Two detector families trained and compared:** YOLOv8 (nano) and RT-DETR (large) on the FOD-A dataset.
+- **Real-time inference:** tested on live video via a laptop camera pipeline.
+- **Super-resolution pipeline:** every *n*-th frame is enhanced before detection to boost small-object accuracy.
+- **Localization:** detected debris is reported with bounding-box coordinates on the runway.
+- **Reproducible experiments:** training notebooks, evaluation plots, and full run artifacts included.
+
+## Results
+
+RT-DETR-L fine-tuned for 10 epochs on the FOD-A dataset (400×400 images, batch 16):
+
+| Metric | Value |
+|---|---|
+| Precision | 0.996 |
+| Recall | 0.992 |
+| mAP@50 | 0.990 |
+| mAP@50–95 | 0.908 |
+
+Full training curves, confusion matrices, PR/F1 curves, and validation batch visualizations are in [RT-DETR/dt-retr_10_epochs/dt-retr_fod_10/](RT-DETR/dt-retr_10_epochs/dt-retr_fod_10/).
+
+A YOLOv8n model was also trained for 200 epochs; its weights ship with this repository (see below).
+
+## Repository Structure
+
+```
+├── YOLOv8/
+│   └── yolov8n_200.pt              # YOLOv8n weights, trained 200 epochs
+├── RT-DETR/
+│   ├── DeTr.ipynb                  # DETR experiments
+│   ├── dt-retr.ipynb               # RT-DETR training notebook
+│   ├── DETR_bbox.ipynb             # Bounding-box inference / visualization
+│   └── dt-retr_10_epochs/          # Full RT-DETR training run artifacts
+│       └── dt-retr_fod_10/         # curves, confusion matrices, results.csv
+├── Testing Script for Laptop Camera/
+│   └── testing_pt_files.ipynb      # Run trained .pt models on a live camera feed
+├── Plotting Script for Metrics/
+│   └── plot_script.ipynb           # Plot training/validation metrics
+└── README.md
+```
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/ahmad9022032/FOD-Detection-Localization-On-Airport-Runways.git
+cd FOD-Detection-Localization-On-Airport-Runways
+```
+
+### 2. Install dependencies
+
+```bash
+pip install ultralytics opencv-python matplotlib pandas jupyter
+```
+
+### 3. Run live detection
+
+Open [testing_pt_files.ipynb](Testing%20Script%20for%20Laptop%20Camera/testing_pt_files.ipynb) and point it at a weights file, e.g.:
+
+```python
+from ultralytics import YOLO
+
+model = YOLO("YOLOv8/yolov8n_200.pt")
+results = model.predict(source=0, show=True)  # source=0 → default webcam
+```
+
+### 4. Retrain / reproduce
+
+- **RT-DETR:** run [dt-retr.ipynb](RT-DETR/dt-retr.ipynb) against the FOD-A dataset.
+- **Metric plots:** run [plot_script.ipynb](Plotting%20Script%20for%20Metrics/plot_script.ipynb) on the `results.csv` produced by training.
+
+## Dataset
+
+The models are trained on **[FOD-A](https://github.com/FOD-UNOmaha/FOD-data)** (Foreign Object Debris in Airports), a public dataset of common runway debris categories captured under varying lighting and weather conditions, resized to 400×400 for training.
+
+## Model Weights
+
+| Model | Training | Availability |
+|---|---|---|
+| YOLOv8n | 200 epochs | Included: [YOLOv8/yolov8n_200.pt](YOLOv8/yolov8n_200.pt) |
+| RT-DETR-L | 10 epochs | **On request** — email me (see Contact) |
+
+The RT-DETR checkpoint is too large to host on GitHub. If you would like the trained RT-DETR weights (or higher-epoch YOLOv8 checkpoints), please email me and I'll share them.
 
 ## Evaluation Metrics
-To ensure high detection accuracy and performance, the following metrics are monitored:
-- **mAP50(B)**: Mean Average Precision at 50% IoU for bounding boxes.
-- **mAP50-95(B)**: Mean Average Precision at IoU thresholds ranging from 50% to 95%.
-- **Precision**: The ratio of true positives to the total number of detections.
-- **Recall**: The ratio of true positives to the total number of actual FOD.
-- **Validation Box Loss**: Measures error in predicted bounding boxes during validation.
-- **Validation Classification Loss**: Measures error in class predictions during validation.
 
-## Installation and Setup
-Clone this repository:
-   ```bash
-   git clone https://github.com/Nauman-Asif-693/FOD-Detection-and-Localization-on-Airport-Runways.git
-   cd FOD-Detection-and-Localization-on-Airport-Runways
+- **mAP@50 / mAP@50–95** — mean average precision at IoU 0.5 and averaged over IoU 0.5–0.95.
+- **Precision / Recall** — detection correctness vs. coverage of actual FOD.
+- **Validation box / classification loss** — bounding-box and class prediction error during validation.
+
+## Contact
+
+For model weights, dataset preparation details, or collaboration:
+
+📧 **studyai008@gmail.com**
