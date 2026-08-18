@@ -23,13 +23,11 @@ RT-DETR-L fine-tuned for 10 epochs on the FOD-A dataset (400×400 images, batch 
 
 Full training curves, confusion matrices, PR/F1 curves, and validation batch visualizations are in [RT-DETR/dt-retr_10_epochs/dt-retr_fod_10/](RT-DETR/dt-retr_10_epochs/dt-retr_fod_10/).
 
-A YOLOv8n model was also trained for 200 epochs; its weights ship with this repository (see below).
+A YOLOv8n model was also trained for 200 epochs; its weights are available on request (see below).
 
 ## Repository Structure
 
 ```
-├── YOLOv8/
-│   └── yolov8n_200.pt              # YOLOv8n weights, trained 200 epochs
 ├── RT-DETR/
 │   ├── DeTr.ipynb                  # DETR experiments
 │   ├── dt-retr.ipynb               # RT-DETR training notebook
@@ -60,12 +58,12 @@ pip install ultralytics opencv-python matplotlib pandas jupyter
 
 ### 3. Run live detection
 
-Open [testing_pt_files.ipynb](Testing%20Script%20for%20Laptop%20Camera/testing_pt_files.ipynb) and point it at a weights file, e.g.:
+Open [testing_pt_files.ipynb](Testing%20Script%20for%20Laptop%20Camera/testing_pt_files.ipynb) and point it at a weights file (request the trained weights via the Contact section below), e.g.:
 
 ```python
 from ultralytics import YOLO
 
-model = YOLO("YOLOv8/yolov8n_200.pt")
+model = YOLO("yolov8n_200.pt")
 results = model.predict(source=0, show=True)  # source=0 → default webcam
 ```
 
@@ -82,10 +80,10 @@ The models are trained on **[FOD-A](https://github.com/FOD-UNOmaha/FOD-data)** (
 
 | Model | Training | Availability |
 |---|---|---|
-| YOLOv8n | 200 epochs | Included: [YOLOv8/yolov8n_200.pt](YOLOv8/yolov8n_200.pt) |
+| YOLOv8n | 200 epochs | **On request** — email me (see Contact) |
 | RT-DETR-L | 10 epochs | **On request** — email me (see Contact) |
 
-The RT-DETR checkpoint is too large to host on GitHub. If you would like the trained RT-DETR weights (or higher-epoch YOLOv8 checkpoints), please email me and I'll share them.
+Trained checkpoints are not hosted in this repository. If you would like the YOLOv8 or RT-DETR weights, please email me and I'll share them.
 
 ## Evaluation Metrics
 
