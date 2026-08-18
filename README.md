@@ -97,4 +97,4 @@ The RT-DETR checkpoint is too large to host on GitHub. If you would like the tra
 
 For model weights, dataset preparation details, or collaboration:
 
-📧 **studyai008@gmail.com**
+📧 **muhammadahmadkhan316@gmail.com**
